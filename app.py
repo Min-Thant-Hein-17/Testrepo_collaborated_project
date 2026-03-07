@@ -94,7 +94,7 @@ if st.session_state.stellar_data:
 
     # --- DISPLAY ---
     def format_val(row):
-        return f"{row['amount']:,.4f}" if row['asset'] == "DMMK" else f"{row['amount']:,.7f}"
+        return f"{row['amount']:,.2f}" if row['asset'] == "DMMK" else f"{row['amount']:,.7f}"
     
     filtered_df['formatted_amount'] = filtered_df.apply(format_val, axis=1)
 
@@ -162,6 +162,7 @@ if st.session_state.stellar_data:
 
 else:
     st.info("Enter a Stellar Account ID in the sidebar to begin.")
+
 
 
 

@@ -106,5 +106,51 @@ if st.session_state.stellar_data:
 
     st.download_button("Export CSV", filtered_df.to_csv(index=False).encode('utf-8'), "nugpay_report.csv")
 
+
+    ################################
+    # --- ACCOUNT SUMMARY TABLE ---
+    st.markdown("---")
+    st.subheader("Summary by Account")
+
+    # 1. Create separate columns for Incoming and Outgoing to allow summing
+    summary_df = filtered_df.copy()
+    summary_df['Incoming'] = summary_df.apply(lambda x: x['amount'] if x['direction'] == "INCOMING" else 0, axis=1)
+    summary_df['Outgoing'] = summary_df.apply(lambda x: x['amount'] if x['direction'] == "OUTGOING" else 0, axis=1)
+
+    # 2. Group by Account and Asset
+    account_summary = summary_df.groupby(['other_account', 'asset']).agg({
+        'Outgoing': 'sum',
+        'Incoming': 'sum'
+    }).reset_index()
+
+    # 3. Add a specific filter for this table
+    sum_f1, sum_f2 = st.columns([1, 2])
+    with sum_f1:
+        sum_asset_filter = st.multiselect(
+            "Filter Summary Assets", 
+            ["DMMK", "nUSDT"], 
+            default=["DMMK", "nUSDT"],
+            key="summary_asset_filter"
+        )
+    
+    # Apply local asset filter
+    display_summary = account_summary[account_summary['asset'].isin(sum_asset_filter)]
+
+    # 4. Display the table
+    st.dataframe(
+        display_summary.sort_values("Outgoing", ascending=False),
+        column_config={
+            "other_account": "Account ID",
+            "asset": "Asset",
+            "Outgoing": st.column_config.Number_Format(help="Total Outgoing"),
+            "Incoming": st.column_config.Number_Format(help="Total Incoming"),
+        },
+        use_container_width=True,
+        hide_index=True
+    )
+########################
+
+
 else:
     st.info("Enter a Stellar Account ID in the sidebar to begin.")
+

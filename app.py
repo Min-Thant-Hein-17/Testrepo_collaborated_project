@@ -146,12 +146,12 @@ if st.session_state.stellar_data:
             "Outgoing": st.column_config.NumberColumn(
                 "Total Outgoing",
                 help="Total sum of outgoing transactions for this account",
-                format="%.2f"
+                format="%,.2f"
             ),
             "Incoming": st.column_config.NumberColumn(
                 "Total Incoming",
                 help="Total sum of incoming transactions for this account",
-                format="%.2f"
+                format="%,.2f"
             ),
         },
         use_container_width=True,
@@ -162,6 +162,7 @@ if st.session_state.stellar_data:
 
 else:
     st.info("Enter a Stellar Account ID in the sidebar to begin.")
+
 
 
 

@@ -141,7 +141,7 @@ if st.session_state.stellar_data:
     st.dataframe(
         display_summary.sort_values("Outgoing", ascending=False),
         column_config={
-            "other_account": "other_account",
+            "other_account": "Other_account",
             "asset": "Asset",
             "Outgoing": st.column_config.NumberColumn(
                 "Total Outgoing",
@@ -162,6 +162,7 @@ if st.session_state.stellar_data:
 
 else:
     st.info("Enter a Stellar Account ID in the sidebar to begin.")
+
 
 
 

@@ -137,13 +137,22 @@ if st.session_state.stellar_data:
     display_summary = account_summary[account_summary['asset'].isin(sum_asset_filter)]
 
     # 4. Display the table
+    # 4. Display the table
     st.dataframe(
         display_summary.sort_values("Outgoing", ascending=False),
         column_config={
             "other_account": "Account ID",
             "asset": "Asset",
-            "Outgoing": st.column_config.Number_Format(help="Total Outgoing"),
-            "Incoming": st.column_config.Number_Format(help="Total Incoming"),
+            "Outgoing": st.column_config.NumberColumn(
+                "Total Outgoing",
+                help="Total sum of outgoing transactions for this account",
+                format="%.4f"
+            ),
+            "Incoming": st.column_config.NumberColumn(
+                "Total Incoming",
+                help="Total sum of incoming transactions for this account",
+                format="%.4f"
+            ),
         },
         use_container_width=True,
         hide_index=True
@@ -153,4 +162,5 @@ if st.session_state.stellar_data:
 
 else:
     st.info("Enter a Stellar Account ID in the sidebar to begin.")
+
 

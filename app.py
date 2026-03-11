@@ -123,6 +123,9 @@ if st.session_state.stellar_data:
         'Incoming': 'sum'
     }).reset_index()
 
+    # -> NEW: Calculate the Net Difference (Incoming minus Outgoing)
+    account_summary['Net_Difference'] = account_summary['Incoming'] - account_summary['Outgoing']
+
     # 3. Add a specific filter for this table
     sum_f1, sum_f2 = st.columns([1, 2])
     with sum_f1:
@@ -137,11 +140,10 @@ if st.session_state.stellar_data:
     display_summary = account_summary[account_summary['asset'].isin(sum_asset_filter)]
 
     # 4. Display the table
-    # 4. Display the table
     st.dataframe(
         display_summary.sort_values("Outgoing", ascending=False),
         column_config={
-            "other_account": "Other_account",
+            "other_account": "Account Name",
             "asset": "Asset",
             "Outgoing": st.column_config.NumberColumn(
                 "Total Outgoing",
@@ -153,6 +155,11 @@ if st.session_state.stellar_data:
                 help="Total sum of incoming transactions for this account",
                 format="%,.2f"
             ),
+            "Net_Difference": st.column_config.NumberColumn(
+                "Net Balance (In - Out)",
+                help="Positive means they sent you more. Negative means you sent them more.",
+                format="%,.2f"
+            ),
         },
         use_container_width=True,
         hide_index=True
@@ -162,6 +169,7 @@ if st.session_state.stellar_data:
 
 else:
     st.info("Enter a Stellar Account ID in the sidebar to begin.")
+
 
 
 

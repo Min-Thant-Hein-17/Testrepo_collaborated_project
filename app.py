@@ -109,6 +109,7 @@ if st.session_state.stellar_data:
 
     ################################
     # --- ACCOUNT SUMMARY TABLE ---
+    # --- ACCOUNT SUMMARY TABLE ---
     st.markdown("---")
     st.subheader("Summary by Account")
 
@@ -117,16 +118,18 @@ if st.session_state.stellar_data:
     summary_df['Incoming'] = summary_df.apply(lambda x: x['amount'] if x['direction'] == "INCOMING" else 0, axis=1)
     summary_df['Outgoing'] = summary_df.apply(lambda x: x['amount'] if x['direction'] == "OUTGOING" else 0, axis=1)
 
-    # 2. Group by Account and Asset
-    account_summary = summary_df.groupby(['other_account', 'asset']).agg({
-        'Outgoing': 'sum',
-        'Incoming': 'sum'
-    }).reset_index()
+    # 2. Group by Account and Asset (Adding Count and Total Volume)
+    account_summary = summary_df.groupby(['other_account', 'asset']).agg(
+        Outgoing=('Outgoing', 'sum'),
+        Incoming=('Incoming', 'sum'),
+        Total_Volume=('amount', 'sum'),
+        Tx_Count=('amount', 'count')  # Counts the number of rows/transactions
+    ).reset_index()
 
-    # -> NEW: Calculate the Net Difference (Incoming minus Outgoing)
+    # Calculate the Net Difference (Incoming minus Outgoing)
     account_summary['Net_Difference'] = account_summary['Incoming'] - account_summary['Outgoing']
 
-    # 3. Add a specific filter for this table
+    # 3. Add filters and sorting toggles for this table
     sum_f1, sum_f2 = st.columns([1, 2])
     with sum_f1:
         sum_asset_filter = st.multiselect(
@@ -135,16 +138,38 @@ if st.session_state.stellar_data:
             default=["DMMK", "nUSDT"],
             key="summary_asset_filter"
         )
+    with sum_f2:
+        # Toggle for sorting logic
+        sort_choice = st.radio(
+            "Sort Table By:",
+            ["Total Amount (Volume)", "Number of Transactions"],
+            horizontal=True
+        )
     
     # Apply local asset filter
     display_summary = account_summary[account_summary['asset'].isin(sum_asset_filter)]
 
+    # Apply sorting based on the user's choice
+    if sort_choice == "Number of Transactions":
+        display_summary = display_summary.sort_values("Tx_Count", ascending=False)
+    else:
+        display_summary = display_summary.sort_values("Total_Volume", ascending=False)
+
     # 4. Display the table
     st.dataframe(
-        display_summary.sort_values("Outgoing", ascending=False),
+        display_summary,
         column_config={
             "other_account": "Account Name",
             "asset": "Asset",
+            "Tx_Count": st.column_config.NumberColumn(
+                "Tx Count",
+                help="Total number of transactions with this account"
+            ),
+            "Total_Volume": st.column_config.NumberColumn(
+                "Total Volume",
+                help="Sum of all incoming and outgoing amounts combined",
+                format="%,.2f"
+            ),
             "Outgoing": st.column_config.NumberColumn(
                 "Total Outgoing",
                 help="Total sum of outgoing transactions for this account",
@@ -169,6 +194,7 @@ if st.session_state.stellar_data:
 
 else:
     st.info("Enter a Stellar Account ID in the sidebar to begin.")
+
 
 
 

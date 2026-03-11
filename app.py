@@ -176,12 +176,24 @@ if st.session_state.stellar_data:
             ),
             "Incoming": st.column_config.NumberColumn(
                 "Total Incoming",
-                help="Total sum of incoming transactions for this account
+                help="Total sum of incoming transactions for this account",
+                format="%,.2f"
+            ),
+            "Net_Difference": st.column_config.NumberColumn(
+                "Net Balance (In - Out)",
+                help="Positive means they sent you more. Negative means you sent them more.",
+                format="%,.2f"
+            ),
+        },
+        use_container_width=True,
+        hide_index=True
+    )
 ########################
 
 
 else:
     st.info("Enter a Stellar Account ID in the sidebar to begin.")
+
 
 
 

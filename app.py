@@ -123,7 +123,7 @@ if st.session_state.stellar_data:
         Outgoing=('Outgoing', 'sum'),
         Incoming=('Incoming', 'sum'),
         Total_Volume=('amount', 'sum'),
-        Tx_Count=('amount', 'count')  # Counts the number of rows/transactions
+        Tx_Count=('amount', 'count')
     ).reset_index()
 
     # Calculate the Net Difference (Incoming minus Outgoing)
@@ -139,23 +139,22 @@ if st.session_state.stellar_data:
             key="summary_asset_filter"
         )
     with sum_f2:
-        # Toggle for sorting logic
-        sort_choice = st.radio(
+        # -> NEW: Dropdown (selectbox) for sorting logic
+        sort_choice = st.selectbox(
             "Sort Table By:",
-            ["Total Amount (Volume)", "Number of Transactions"],
-            horizontal=True
+            ["Total Amount (Volume)", "Number of Transactions"]
         )
     
     # Apply local asset filter
     display_summary = account_summary[account_summary['asset'].isin(sum_asset_filter)]
 
-    # Apply sorting based on the user's choice
+    # Apply sorting based on the user's drop-down choice
     if sort_choice == "Number of Transactions":
         display_summary = display_summary.sort_values("Tx_Count", ascending=False)
     else:
         display_summary = display_summary.sort_values("Total_Volume", ascending=False)
 
-    # 4. Display the table
+    # 4. Display the table (with the CORRECTED NumberColumn syntax!)
     st.dataframe(
         display_summary,
         column_config={
@@ -177,23 +176,13 @@ if st.session_state.stellar_data:
             ),
             "Incoming": st.column_config.NumberColumn(
                 "Total Incoming",
-                help="Total sum of incoming transactions for this account",
-                format="%,.2f"
-            ),
-            "Net_Difference": st.column_config.NumberColumn(
-                "Net Balance (In - Out)",
-                help="Positive means they sent you more. Negative means you sent them more.",
-                format="%,.2f"
-            ),
-        },
-        use_container_width=True,
-        hide_index=True
-    )
+                help="Total sum of incoming transactions for this account
 ########################
 
 
 else:
     st.info("Enter a Stellar Account ID in the sidebar to begin.")
+
 
 
 
